@@ -1,0 +1,3225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Uploader - File & Folder Uploader</title>
+    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/cloudy-claude/cloud/master/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ================= RESET & BASE ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            /* Default theme variables (Emerald Dark) */
+            --bg: #0f1214;
+            --surface: #1c2326;
+            --surface-alt: #243036;
+            --surface-hover: #2c3a40;
+            --text: #e0e0e0;
+            --text-secondary: #9de4d8;
+            --text-muted: #7dd3c7;
+            --text-inverse: #000000;
+            --border: #134e4a;
+            --border-strong: #115e59;
+            --divider: #083344;
+            --primary: #00c9b1;
+            --primary-hover: #00b39e;
+            --primary-active: #009d8a;
+            --primary-soft: #052e2a;
+            --secondary: #5eead4;
+            --secondary-hover: #2dd4bf;
+            --secondary-soft: #0f3d38;
+            --accent: #34d399;
+            --accent-soft: #0a3328;
+            --success: #22c55e;
+            --warning: #facc15;
+            --error: #ef4444;
+            --info: #2dd4bf;
+            --link: #5eead4;
+            --link-hover: #99f6e4;
+            --shadow: 0 0 30px rgba(0,201,177,.25);
+            --focus-ring: rgba(0,201,177,.45);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            transition: background-color 0.5s ease, color 0.3s ease;
+        }
+
+        /* ================= RESPONSIVE UTILITY CLASSES ================= */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Grid System */
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .grid-1 { grid-template-columns: repeat(1, 1fr); }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        
+        /* Flex Utilities */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-row { flex-direction: row; }
+        .flex-wrap { flex-wrap: wrap; }
+        .items-center { align-items: center; }
+        .items-start { align-items: flex-start; }
+        .items-end { align-items: flex-end; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-start { justify-content: flex-start; }
+        .justify-end { justify-content: flex-end; }
+        
+        /* Spacing */
+        .gap-5 { gap: 5px; }
+        .gap-10 { gap: 10px; }
+        .gap-15 { gap: 15px; }
+        .gap-20 { gap: 20px; }
+        .gap-25 { gap: 25px; }
+        .gap-30 { gap: 30px; }
+        
+        .m-0 { margin: 0; }
+        .mt-10 { margin-top: 10px; }
+        .mt-15 { margin-top: 15px; }
+        .mt-20 { margin-top: 20px; }
+        .mt-30 { margin-top: 30px; }
+        .mb-10 { margin-bottom: 10px; }
+        .mb-15 { margin-bottom: 15px; }
+        .mb-20 { margin-bottom: 20px; }
+        .mb-30 { margin-bottom: 30px; }
+        
+        .p-10 { padding: 10px; }
+        .p-15 { padding: 15px; }
+        .p-20 { padding: 20px; }
+        .p-25 { padding: 25px; }
+        
+        /* Text */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        
+        .text-sm { font-size: 0.875rem; }
+        .text-base { font-size: 1rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        
+        .font-normal { font-weight: 400; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        
+        /* Width & Height */
+        .w-full { width: 100%; }
+        .w-auto { width: auto; }
+        .h-full { height: 100%; }
+        .h-auto { height: auto; }
+        
+        /* Visibility */
+        .hidden { display: none; }
+        .block { display: block; }
+        .inline-block { display: inline-block; }
+        
+        /* ================= MOBILE-FIRST BREAKPOINTS ================= */
+        /* Base styles (mobile) */
+        .desktop-only { display: none; }
+        .mobile-only { display: block; }
+        
+        /* Tablet (768px and up) */
+        @media (min-width: 768px) {
+            .tablet-only { display: block; }
+            .mobile-only { display: none; }
+            
+            .grid-md-2 { grid-template-columns: repeat(2, 1fr); }
+            .grid-md-3 { grid-template-columns: repeat(3, 1fr); }
+            .flex-md-row { flex-direction: row; }
+            .flex-md-col { flex-direction: column; }
+        }
+        
+        /* Desktop (1024px and up) */
+        @media (min-width: 1024px) {
+            .desktop-only { display: block; }
+            .mobile-only { display: none; }
+            
+            .grid-lg-3 { grid-template-columns: repeat(3, 1fr); }
+            .grid-lg-4 { grid-template-columns: repeat(4, 1fr); }
+            .flex-lg-row { flex-direction: row; }
+        }
+        
+        /* Large Desktop (1200px and up) */
+        @media (min-width: 1200px) {
+            .container { max-width: 1200px; }
+        }
+
+        /* ================= THEME SWITCHER ================= */
+        .theme-drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .theme-drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .theme-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 380px;
+            height: 100vh;
+            background-color: var(--surface);
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid var(--border);
+        }
+
+        .theme-drawer.active { right: 0; }
+
+        .theme-drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--divider);
+            background-color: var(--surface-alt);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-drawer-header h2 {
+            color: var(--text);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .theme-drawer-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .close-drawer {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .close-drawer:hover { background-color: var(--surface-hover); }
+
+        .theme-drawer-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .theme-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 480px) {
+            .theme-preview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .theme-option {
+            background-color: var(--surface-alt);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .theme-option:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
+        .theme-option.active { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+
+        .theme-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .theme-color { flex: 1; }
+
+        .theme-info h4 {
+            color: var(--text);
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .theme-info p {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 0;
+        }
+
+        .theme-check {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 22px;
+            height: 22px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .swipe-indicator {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--primary);
+            color: white;
+            width: 40px;
+            height: 60px;
+            border-radius: 10px 0 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .swipe-indicator {
+                width: 35px;
+                height: 50px;
+            }
+        }
+
+        .swipe-indicator:hover { opacity: 1; width: 45px; }
+
+        .swipe-indicator i {
+            font-size: 1.2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-3px); }
+        }
+
+        /* Toast notification */
+        .theme-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            transform: translateY(100px);
+            background-color: var(--surface);
+            color: var(--text);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--primary);
+            z-index: 10000;
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .theme-toast {
+                left: 50%;
+                transform: translateX(-50%) translateY(100px);
+                width: auto;
+                min-width: 300px;
+            }
+            
+            .theme-toast.show {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .theme-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Countdown timer */
+        .countdown-timer {
+            background-color: var(--surface-alt);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+            text-align: left;
+            display: none;
+        }
+
+        .countdown-timer.show { display: block; }
+
+        .countdown-timer h4 {
+            color: var(--text);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .timer-display {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile swipe zone */
+        .swipe-zone {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        /* ==================== DROP ZONE ==================== */
+        .drop-zone {
+            border: 3px dashed var(--border);
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            background-color: var(--surface-alt);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        @media (min-width: 768px) {
+            .drop-zone {
+                padding: 60px 40px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .drop-zone {
+                padding: 80px 40px;
+            }
+        }
+
+        .drop-zone.drag-over { cursor: copy; }
+
+        .drop-zone-icon {
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .drop-zone-icon {
+                margin-bottom: 25px;
+            }
+        }
+
+        .drop-zone-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .drop-zone-text {
+                font-size: 1.5rem;
+            }
+        }
+
+        .drop-zone-subtext {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+            transition: color 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .drop-zone-subtext {
+                font-size: 1rem;
+            }
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-soft);
+        }
+
+        .drop-zone:hover .drop-zone-icon { color: var(--primary); }
+        .drop-zone:hover .drop-zone-text { color: var(--primary); }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background-color: var(--primary-soft);
+            transform: scale(1.02);
+            box-shadow: var(--shadow);
+        }
+
+        .drop-zone.drag-over .drop-zone-icon {
+            color: var(--primary);
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        .drop-zone.drag-over .drop-zone-text { color: var(--primary); }
+        .drop-zone.drag-over .drop-zone-subtext { color: var(--text-secondary); }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+
+        .drop-zone::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            background: linear-gradient(45deg, transparent 0%, rgba(0, 201, 177, 0.1) 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .drop-zone.drag-over::after {
+            opacity: 1;
+            animation: glow 2s infinite linear;
+        }
+
+        @keyframes glow {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+
+        .drop-zone-tooltip {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            white-space: nowrap;
+            pointer-events: none;
+            border: 1px solid var(--border);
+            max-width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (min-width: 768px) {
+            .drop-zone-tooltip {
+                bottom: 15px;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* ==================== UPLOAD CONTAINER ==================== */
+        .upload-container {
+            padding: 20px 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background-color: var(--surface-alt);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .upload-container {
+                padding: 30px 20px;
+            }
+        }
+
+        .upload-container:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-soft);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .upload-container i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .upload-container i {
+                font-size: 2.5rem;
+                margin-bottom: 15px;
+            }
+        }
+
+        .upload-container p {
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .upload-container small {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ==================== SECTION HEADERS ==================== */
+        .section-header {
+            color: var(--text);
+            text-align: left;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        @media (min-width: 768px) {
+            .section-header {
+                font-size: 1.4rem;
+                margin-bottom: 20px;
+            }
+        }
+
+        .section-header i { color: var(--primary); }
+
+        /* ==================== MAIN CONTAINER ==================== */
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                gap: 40px;
+                margin-top: 30px;
+            }
+        }
+
+        /* ==================== QUEUE SYSTEM ==================== */
+        .queue-controls {
+            background: var(--surface-alt);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        @media (min-width: 768px) {
+            .queue-controls {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            border: none;
+            transition: all 0.3s ease;
+            min-height: 36px;
+        }
+
+        @media (min-width: 768px) {
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--secondary-soft); color: var(--text); border: 1px solid var(--border); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--error); color: white; }
+
+        /* Mobile friendly button group */
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .btn-group {
+                display: flex;
+                flex-wrap: wrap;
+                width: auto;
+            }
+        }
+
+        .status-counters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .status-counters {
+                font-size: 0.85rem;
+                justify-content: flex-start;
+                margin-top: 0;
+            }
+        }
+
+        .upload-stats {
+            background: var(--surface);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            margin-top: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .upload-stats {
+                margin-top: 0;
+            }
+        }
+
+        .search-box { 
+            position: relative;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .search-box {
+                width: auto;
+            }
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-box input {
+            padding: 8px 15px 8px 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .search-box input {
+                width: 250px;
+            }
+        }
+
+        .sort-control, .filter-control { 
+            display: flex; 
+            flex-direction: column;
+            align-items: flex-start; 
+            gap: 5px; 
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .sort-control, .filter-control {
+                flex-direction: row;
+                align-items: center;
+                width: auto;
+            }
+        }
+
+        select, input[type="text"] {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            select {
+                width: auto;
+            }
+        }
+
+        .group-control { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            gap: 8px; 
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .group-control {
+                width: auto;
+                margin-top: 0;
+            }
+        }
+
+        .queue-container {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .queue-header {
+            display: grid;
+            grid-template-columns: 40px 1fr 80px 100px;
+            gap: 10px;
+            padding: 12px 15px;
+            background: var(--surface-alt);
+            border-bottom: 1px solid var(--border);
+            font-weight: bold;
+            color: var(--text);
+            font-size: 0.85rem;
+            min-width: 600px;
+        }
+
+        @media (min-width: 768px) {
+            .queue-header {
+                grid-template-columns: 40px 2fr 1fr 1fr 2fr 150px;
+                gap: 15px;
+                padding: 15px 20px;
+                font-size: 0.9rem;
+                min-width: auto;
+            }
+        }
+
+        .queue-body {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .empty-queue {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        @media (min-width: 768px) {
+            .empty-queue {
+                padding: 60px 20px;
+            }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .modal-overlay {
+                padding: 20px;
+            }
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 12px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .modal-header {
+                padding: 20px;
+            }
+        }
+
+        .modal-body {
+            padding: 15px;
+            overflow: auto;
+            flex: 1;
+        }
+
+        @media (min-width: 768px) {
+            .modal-body {
+                padding: 20px;
+            }
+        }
+
+        .queue-item {
+            display: grid;
+            grid-template-columns: 40px 1fr 80px 100px;
+            gap: 10px;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            transition: background-color 0.2s;
+            animation: fadeIn 0.3s ease-out;
+            min-width: 600px;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item {
+                grid-template-columns: 40px 2fr 1fr 1fr 2fr 150px;
+                gap: 15px;
+                padding: 15px 20px;
+                min-width: auto;
+            }
+        }
+
+        .queue-item:hover { background-color: var(--surface-alt); }
+        .queue-item.selected { background-color: var(--primary-soft); }
+
+        .queue-item .checkbox-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .queue-item .file-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text);
+            font-weight: 500;
+            min-width: 0;
+        }
+
+        .queue-item .file-icon {
+            font-size: 1rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .file-icon {
+                font-size: 1.2rem;
+            }
+        }
+
+        .queue-item .file-name-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .queue-item .file-path {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .file-path {
+                font-size: 0.8rem;
+            }
+        }
+
+        .queue-item .file-size { 
+            color: var(--text-secondary); 
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .file-size {
+                font-size: 0.9rem;
+                text-align: left;
+            }
+        }
+
+        .queue-item .file-type {
+            color: var(--text);
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            text-align: center;
+            width: fit-content;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .file-type {
+                font-size: 0.85rem;
+                padding: 4px 10px;
+            }
+        }
+
+        .queue-item .file-tags {
+            display: none;
+            flex-wrap: wrap;
+            gap: 5px;
+            font-size: 0.8rem;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .file-tags {
+                display: flex;
+            }
+        }
+
+        .queue-item .tag {
+            background: var(--surface-alt);
+            color: var(--text-secondary);
+            padding: 2px 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-size: 0.75rem;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .tag {
+                padding: 3px 8px;
+                font-size: 0.8rem;
+            }
+        }
+
+        .queue-item .actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .actions {
+                gap: 8px;
+                justify-content: center;
+            }
+        }
+
+        .queue-item .action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            color: white;
+            font-size: 0.7rem;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .action-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+        }
+
+        .queue-item .action-btn:hover { opacity: 0.9; }
+        .queue-item .preview-btn { background: var(--info); }
+        .queue-item .upload-btn { background: var(--success); }
+        .queue-item .delete-btn { background: var(--error); }
+        .queue-item .edit-btn { background: var(--warning); }
+
+        .queue-item .progress-container { 
+            display: none;
+            width: 100%; 
+            margin-top: 5px; 
+            grid-column: 1 / -1;
+        }
+
+        @media (min-width: 768px) {
+            .queue-item .progress-container {
+                display: block;
+            }
+        }
+
+        .queue-item .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--surface-alt);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .queue-item .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .queue-item .progress-text {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        /* Category Colors */
+        .type-visual { background-color: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .type-document { background-color: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .type-media { background-color: rgba(239, 68, 68, 0.15); color: var(--error); }
+        .type-web { background-color: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .type-archive { background-color: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .type-program { background-color: rgba(20, 184, 166, 0.15); color: #14b8a6; }
+        .type-other { background-color: rgba(156, 163, 175, 0.15); color: var(--text-muted); }
+
+        .group-header {
+            padding: 10px 15px;
+            background: var(--surface-alt);
+            border-bottom: 1px solid var(--border);
+            font-weight: bold;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .group-header {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        .group-header i { transition: transform 0.3s; }
+        .group-header.collapsed i { transform: rotate(-90deg); }
+
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: var(--surface-alt);
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid var(--border);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: var(--text);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: white;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .theme-option:hover,
+            .upload-container:hover,
+            .btn:hover { transform: none; }
+            
+            .queue-item .action-btn {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        /* ================= THEMES ================= */
+        /* Theme definitions are preserved exactly as they were */
+        body.light {
+          --bg: #f8f9fa; --surface: #ffffff; --surface-alt: #f1f5f9; --surface-hover: #e5e7eb;
+          --text: #333333; --text-secondary: #666666; --text-muted: #9ca3af; --text-inverse: #ffffff;
+          --border: #e0e0e0; --border-strong: #cbd5e1; --divider: #e5e7eb;
+          --primary: #4a6fa5; --primary-hover: #3b5f90; --primary-active: #2f4e78; --primary-soft: #e8eff8;
+          --secondary: #166088; --secondary-hover: #124e6e; --secondary-soft: #e0f2fe;
+          --accent: #2563eb; --accent-soft: #dbeafe;
+          --success: #16a34a; --warning: #d97706; --error: #dc2626; --info: #0284c7;
+          --link: #2563eb; --link-hover: #1e40af;
+          --shadow: 0 10px 30px rgba(0,0,0,.08); --focus-ring: rgba(37,99,235,.35);
+        }
+
+        body.dark {
+          --bg: #121212; --surface: #1e1e1e; --surface-alt: #262626; --surface-hover: #2f2f2f;
+          --text: #e0e0e0; --text-secondary: #aaaaaa; --text-muted: #6b7280; --text-inverse: #000000;
+          --border: #333333; --border-strong: #444444; --divider: #2a2a2a;
+          --primary: #d4af37; --primary-hover: #c29d2e; --primary-active: #a88724; --primary-soft: #3a2f12;
+          --secondary: #b8941f; --secondary-hover: #9e7f1a; --secondary-soft: #2f2612;
+          --accent: #38bdf8; --accent-soft: #0c2d3f;
+          --success: #22c55e; --warning: #f59e0b; --error: #ef4444; --info: #38bdf8;
+          --link: #38bdf8; --link-hover: #7dd3fc;
+          --shadow: 0 15px 40px rgba(0,0,0,.6); --focus-ring: rgba(56,189,248,.4);
+        }
+
+        body.cosmic-neon-dark {
+          --bg: #0a0014; --surface: #14001f; --surface-alt: #1c0030; --surface-hover: #24003d;
+          --text: #f5e9ff; --text-secondary: #d8b4fe; --text-muted: #a78bfa; --text-inverse: #000000;
+          --border: #581c87; --border-strong: #6b21a8; --divider: #3b0764;
+          --primary: #e879f9; --primary-hover: #d946ef; --primary-active: #c026d3; --primary-soft: #2a0a3d;
+          --secondary: #c084fc; --secondary-hover: #a855f7; --secondary-soft: #2b0e3f;
+          --accent: #f472b6; --accent-soft: #3b0a2a;
+          --success: #4ade80; --warning: #facc15; --error: #fb7185; --info: #7dd3fc;
+          --link: #e879f9; --link-hover: #f0abfc;
+          --shadow: 0 0 40px rgba(232,121,249,.35); --focus-ring: rgba(232,121,249,.5);
+        }
+
+        body.deep-blue-dark {
+          --bg: #020617; --surface: #020617; --surface-alt: #020c1b; --surface-hover: #04152e;
+          --text: #e0f2fe; --text-secondary: #bae6fd; --text-muted: #7dd3fc; --text-inverse: #000000;
+          --border: #0c4a6e; --border-strong: #075985; --divider: #082f49;
+          --primary: #38bdf8; --primary-hover: #0ea5e9; --primary-active: #0284c7; --primary-soft: #082f49;
+          --secondary: #0ea5e9; --secondary-hover: #0284c7; --secondary-soft: #06263f;
+          --accent: #7dd3fc; --accent-soft: #0a2a43;
+          --success: #22c55e; --warning: #eab308; --error: #ef4444; --info: #38bdf8;
+          --link: #7dd3fc; --link-hover: #bae6fd;
+          --shadow: 0 0 35px rgba(56,189,248,.25); --focus-ring: rgba(56,189,248,.45);
+        }
+
+        body.emerald-dark {
+          --bg: #0f1214; --surface: #1c2326; --surface-alt: #243036; --surface-hover: #2c3a40;
+          --text: #e0e0e0; --text-secondary: #9de4d8; --text-muted: #7dd3c7; --text-inverse: #000000;
+          --border: #134e4a; --border-strong: #115e59; --divider: #083344;
+          --primary: #00c9b1; --primary-hover: #00b39e; --primary-active: #009d8a; --primary-soft: #052e2a;
+          --secondary: #5eead4; --secondary-hover: #2dd4bf; --secondary-soft: #0f3d38;
+          --accent: #34d399; --accent-soft: #0a3328;
+          --success: #22c55e; --warning: #facc15; --error: #ef4444; --info: #2dd4bf;
+          --link: #5eead4; --link-hover: #99f6e4;
+          --shadow: 0 0 30px rgba(0,201,177,.25); --focus-ring: rgba(0,201,177,.45);
+        }
+
+        body.midnight-dark {
+          --bg: #0b1020; --surface: #131a2e; --surface-alt: #1b2440; --surface-hover: #24305a;
+          --text: #e5e7eb; --text-secondary: #c7d2fe; --text-muted: #9ca3af; --text-inverse: #000000;
+          --border: #1e3a8a; --border-strong: #1d4ed8; --divider: #1e293b;
+          --primary: #6366f1; --primary-hover: #4f46e5; --primary-active: #4338ca; --primary-soft: #1e1b4b;
+          --secondary: #818cf8; --secondary-hover: #6366f1; --secondary-soft: #1e214f;
+          --accent: #a5b4fc; --accent-soft: #23265c;
+          --success: #22c55e; --warning: #f59e0b; --error: #ef4444; --info: #818cf8;
+          --link: #818cf8; --link-hover: #c7d2fe;
+          --shadow: 0 20px 50px rgba(0,0,0,.55); --focus-ring: rgba(99,102,241,.45);
+        }
+
+        body.violet-glow-dark {
+          --bg: #0b0614; --surface: #160b2e; --surface-alt: #1f0f40; --surface-hover: #2a145a;
+          --text: #ede9fe; --text-secondary: #ddd6fe; --text-muted: #c4b5fd; --text-inverse: #000000;
+          --border: #6d28d9; --border-strong: #7c3aed; --divider: #3b0764;
+          --primary: #a855f7; --primary-hover: #9333ea; --primary-active: #7e22ce; --primary-soft: #2a1248;
+          --secondary: #c084fc; --secondary-hover: #a855f7; --secondary-soft: #311252;
+          --accent: #d8b4fe; --accent-soft: #3a155f;
+          --success: #4ade80; --warning: #facc15; --error: #fb7185; --info: #c084fc;
+          --link: #c084fc; --link-hover: #e9d5ff;
+          --shadow: 0 0 45px rgba(168,85,247,.35); --focus-ring: rgba(168,85,247,.5);
+        }
+
+        /* Theme transition */
+        .theme-transition * {
+          transition:
+            background-color 0.5s ease,
+            border-color 0.5s ease,
+            color 0.3s ease,
+            box-shadow 0.5s ease;
+        }
+
+        @keyframes themePreview {
+          0% { transform: scale(0.95); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+
+        .theme-option { animation: themePreview 0.3s ease-out; }
+        .theme-option:nth-child(1) { animation-delay: 0.05s; }
+        .theme-option:nth-child(2) { animation-delay: 0.1s; }
+        .theme-option:nth-child(3) { animation-delay: 0.15s; }
+        .theme-option:nth-child(4) { animation-delay: 0.2s; }
+        .theme-option:nth-child(5) { animation-delay: 0.25s; }
+        .theme-option:nth-child(6) { animation-delay: 0.3s; }
+        .theme-option:nth-child(7) { animation-delay: 0.35s; }
+
+        .theme-option:focus-visible,
+        .close-drawer:focus-visible {
+          outline: 2px solid var(--focus-ring);
+          outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="emerald-dark theme-transition">
+    <!-- Theme Swipe Indicator -->
+    <div class="swipe-indicator" id="swipe-indicator" title="Pilih Tema">
+        <i class="fas fa-palette" aria-hidden="true"></i>
+        <span class="sr-only">Buka pemilih tema</span>
+    </div>
+    <div class="swipe-zone" id="swipe-zone"></div>
+    <div class="theme-drawer-overlay" id="theme-overlay"></div>
+    
+    <div class="theme-drawer" id="theme-drawer">
+        <div class="theme-drawer-header">
+            <h2><i class="fas fa-palette" aria-hidden="true"></i> Pilih Tema</h2>
+            <button class="close-drawer" id="close-drawer" aria-label="Tutup pemilih tema">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="theme-drawer-content">
+            <p style="color: var(--text-secondary); margin-bottom: 15px;">Pilih tema sesuai selera Anda.</p>
+            <p>Tema aktif: <span id="current-theme-name">Emerald Dark</span></p>
+            <div class="countdown-timer" id="countdown-timer">
+                <h4><i class="fas fa-clock" aria-hidden="true"></i> Tema akan kembali ke default dalam:</h4>
+                <p class="timer-display" id="timer-display"></p>
+            </div>
+            <div class="theme-preview-grid" id="theme-grid" role="list" aria-label="Daftar tema yang tersedia"></div>
+        </div>
+    </div>
+    
+    <div class="theme-toast" id="theme-toast" role="status" aria-live="polite" aria-atomic="true">
+        <i class="fas fa-check-circle" aria-hidden="true"></i>
+        <div>
+            <strong id="toast-title">Tema Berhasil Diubah!</strong>
+            <p id="toast-message">Tema telah diterapkan ke halaman ini.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Title Section -->
+        <header class="text-center mb-20">
+            <h1 style="color: var(--text); font-size: 1.75rem; margin-bottom: 10px;">
+                <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> Storage Uploader
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                Upload file & folder dengan sistem antrian canggih
+            </p>
+        </header>
+
+        <!-- SECTION 1: DROP ZONE (DRAG & DROP ONLY) -->
+        <section aria-labelledby="dropzone-heading">
+            <h2 id="dropzone-heading" class="section-header">
+                <i class="fas fa-hand-pointer" aria-hidden="true"></i> Drag & Drop Only
+            </h2>
+            <div class="drop-zone" id="dropZone" role="region" aria-label="Area drag and drop">
+                <div class="drop-zone-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <p class="drop-zone-text">Seret & lepas file di sini</p>
+                <p class="drop-zone-subtext">Area ini hanya untuk drag & drop</p>
+                <div class="drop-zone-tooltip">Gunakan File Picker di bawah untuk memilih file</div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: FILE PICKER (3 OPTIONS) -->
+        <section aria-labelledby="picker-heading">
+            <h2 id="picker-heading" class="section-header">
+                <i class="fas fa-mouse-pointer" aria-hidden="true"></i> File Picker
+            </h2>
+            <div class="grid grid-1 md:grid-3 gap-20">
+                <div class="upload-container" id="upload-container" role="button" tabindex="0" aria-label="Upload file biasa">
+                    <i class="fas fa-file-upload" aria-hidden="true"></i>
+                    <p>Upload Files</p>
+                    <small>Pilih file biasa</small>
+                    <input type="file" id="file-input" multiple class="sr-only">
+                </div>
+                
+                <div class="upload-container" id="folder-container" role="button" tabindex="0" aria-label="Upload folder dengan struktur">
+                    <i class="fas fa-folder-plus" aria-hidden="true"></i>
+                    <p>Upload Folder</p>
+                    <small>Simpan struktur folder</small>
+                    <input type="file" id="folder-input" webkitdirectory directory multiple class="sr-only">
+                </div>
+                
+                <div class="upload-container" id="content-container" role="button" tabindex="0" aria-label="Upload isi folder saja">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    <p>Folder Contents</p>
+                    <small>Hanya file di dalamnya</small>
+                    <input type="file" id="content-input" webkitdirectory directory multiple class="sr-only">
+                </div>
+            </div>
+            <p style="color: var(--text-muted); margin-top: 15px; font-size: 0.9rem;">
+                <i class="fas fa-info-circle" aria-hidden="true"></i> Klik salah satu opsi di atas untuk memilih file atau folder
+            </p>
+        </section>
+
+        <!-- SECTION 3: FILE QUEUE & MANAGEMENT -->
+        <section aria-labelledby="queue-heading">
+            <h2 id="queue-heading" class="section-header">
+                <i class="fas fa-tasks" aria-hidden="true"></i> File Queue & Management
+            </h2>
+            
+            <!-- File Queue Controls -->
+            <div class="queue-controls">
+                <!-- Mobile First Layout -->
+                <div class="mobile-only">
+                    <div class="btn-group mb-15">
+                        <button class="btn btn-primary" id="select-all-btn">
+                            <i class="fas fa-check-square" aria-hidden="true"></i> All
+                        </button>
+                        <button class="btn btn-secondary" id="deselect-all-btn">
+                            <i class="fas fa-square" aria-hidden="true"></i> None
+                        </button>
+                        <button class="btn btn-success" id="bulk-upload-btn">
+                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> Upload
+                        </button>
+                        <button class="btn btn-danger" id="bulk-delete-btn">
+                            <i class="fas fa-trash" aria-hidden="true"></i> Delete
+                        </button>
+                    </div>
+                    
+                    <div class="status-counters">
+                        <span><i class="fas fa-file" aria-hidden="true"></i> <span id="total-files">0</span> files</span>
+                        <span><i class="fas fa-check-circle" style="color: var(--success);" aria-hidden="true"></i> <span id="uploaded-files">0</span> up</span>
+                        <span><i class="fas fa-clock" style="color: var(--warning);" aria-hidden="true"></i> <span id="pending-files">0</span> pend</span>
+                    </div>
+                </div>
+                
+                <!-- Desktop Layout -->
+                <div class="desktop-only flex justify-center items-center flex-wrap gap-15 mb-20">
+                    <div class="bulk-actions flex gap-10 items-center">
+                        <button class="btn btn-primary" id="select-all-btn-desktop">
+                            <i class="fas fa-check-square" aria-hidden="true"></i> Select All
+                        </button>
+                        <button class="btn btn-secondary" id="deselect-all-btn-desktop">
+                            <i class="fas fa-square" aria-hidden="true"></i> Deselect All
+                        </button>
+                        <button class="btn btn-success" id="bulk-upload-btn-desktop">
+                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> Upload Selected
+                        </button>
+                        <button class="btn btn-danger" id="bulk-delete-btn-desktop">
+                            <i class="fas fa-trash" aria-hidden="true"></i> Delete Selected
+                        </button>
+                    </div>
+                    
+                    <div class="status-counters">
+                        <span><i class="fas fa-file" aria-hidden="true"></i> <span id="total-files-desktop">0</span> files</span>
+                        <span><i class="fas fa-check-circle" style="color: var(--success);" aria-hidden="true"></i> <span id="uploaded-files-desktop">0</span> uploaded</span>
+                        <span><i class="fas fa-clock" style="color: var(--warning);" aria-hidden="true"></i> <span id="pending-files-desktop">0</span> pending</span>
+                    </div>
+                </div>
+                
+                <div class="upload-stats" id="upload-stats" style="display: none;">
+                    <div class="flex flex-col md:flex-row gap-10 md:gap-15" style="font-size: 0.85rem;">
+                        <div>
+                            <span style="color: var(--text-secondary);">Speed:</span>
+                            <span id="upload-speed" style="color: var(--text); font-weight: bold;">0 KB/s</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-secondary);">Time Left:</span>
+                            <span id="time-remaining" style="color: var(--text); font-weight: bold;">--:--</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-secondary);">Parallel:</span>
+                            <span id="parallel-count" style="color: var(--text); font-weight: bold;">3</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search & Filter Controls -->
+                <div class="flex flex-col gap-15 mt-20">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-10">
+                        <div class="search-box">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                            <input type="text" id="file-search" placeholder="Search files..." aria-label="Cari file">
+                        </div>
+                        
+                        <div class="flex flex-col md:flex-row gap-10 w-full md:w-auto">
+                            <div class="sort-control">
+                                <label for="sort-by" style="color: var(--text-secondary); font-size: 0.85rem;">Sort by:</label>
+                                <select id="sort-by" aria-label="Urutkan file berdasarkan">
+                                    <option value="name">Name (A-Z)</option>
+                                    <option value="name-desc">Name (Z-A)</option>
+                                    <option value="size">Size (Smallest)</option>
+                                    <option value="size-desc">Size (Largest)</option>
+                                    <option value="date">Date Added (Newest)</option>
+                                    <option value="date-desc">Date Added (Oldest)</option>
+                                    <option value="type">Type</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-control">
+                                <label for="filter-category" style="color: var(--text-secondary); font-size: 0.85rem;">Filter:</label>
+                                <select id="filter-category" aria-label="Filter file berdasarkan kategori">
+                                    <option value="all">All Categories</option>
+                                    <option value="visual">Visual (Images)</option>
+                                    <option value="document">Document</option>
+                                    <option value="media">Media</option>
+                                    <option value="web">Web</option>
+                                    <option value="archive">Archive</option>
+                                    <option value="program">Program</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="group-control">
+                        <label for="group-toggle" style="color: var(--text-secondary); font-size: 0.85rem; cursor: pointer;">Group by Category</label>
+                        <label class="switch">
+                            <input type="checkbox" id="group-toggle" aria-label="Kelompokkan file berdasarkan kategori">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- File Queue Table -->
+            <div class="queue-container">
+                <div class="queue-header" role="row">
+                    <div class="flex items-center justify-center">
+                        <input type="checkbox" id="header-checkbox" aria-label="Pilih semua file">
+                    </div>
+                    <div>File Name</div>
+                    <div class="text-right md:text-left">Size</div>
+                    <div class="desktop-only">Type</div>
+                    <div class="desktop-only">Tags & Metadata</div>
+                    <div class="text-center">Actions</div>
+                </div>
+                
+                <div class="queue-body" id="queue-body" role="listbox" aria-label="Daftar file dalam antrian">
+                    <div class="empty-queue" id="empty-queue">
+                        <i class="fas fa-folder-open" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5;" aria-hidden="true"></i>
+                        <h3 style="margin-bottom: 10px; color: var(--text-secondary);">No Files in Queue</h3>
+                        <p>Drag & drop files or use the file picker above to add files to the queue.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- File Preview Modal -->
+            <div class="modal-overlay" id="preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title" hidden>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="preview-title" style="color: var(--text); margin: 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-eye" aria-hidden="true"></i> File Preview
+                        </h3>
+                        <button class="close-drawer" id="close-preview" aria-label="Tutup preview">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="preview-body"></div>
+                </div>
+            </div>
+            
+            <!-- File Metadata Editor Modal -->
+            <div class="modal-overlay" id="metadata-modal" role="dialog" aria-modal="true" aria-labelledby="metadata-title" hidden>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="metadata-title" style="color: var(--text); margin: 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-edit" aria-hidden="true"></i> Edit File Metadata
+                        </h3>
+                        <button class="close-drawer" id="close-metadata" aria-label="Tutup editor metadata">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="metadata-form">
+                            <input type="hidden" id="edit-file-id">
+                            <div style="margin-bottom: 15px;">
+                                <label for="edit-file-name" style="display: block; margin-bottom: 5px; color: var(--text); font-weight: 500;">File Name</label>
+                                <input type="text" id="edit-file-name" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="edit-file-category" style="display: block; margin-bottom: 5px; color: var(--text); font-weight: 500;">Category</label>
+                                <select id="edit-file-category" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);">
+                                    <option value="visual">Visual (Images)</option>
+                                    <option value="document">Document</option>
+                                    <option value="media">Media</option>
+                                    <option value="web">Web</option>
+                                    <option value="archive">Archive</option>
+                                    <option value="program">Program</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="edit-file-tags" style="display: block; margin-bottom: 5px; color: var(--text); font-weight: 500;">Tags (comma separated)</label>
+                                <input type="text" id="edit-file-tags" placeholder="e.g. important, project, draft" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);">
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label for="edit-file-description" style="display: block; margin-bottom: 5px; color: var(--text); font-weight: 500;">Description</label>
+                                <textarea id="edit-file-description" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--text); resize: vertical;"></textarea>
+                            </div>
+                            <div class="flex flex-col sm:flex-row justify-end gap-10">
+                                <button type="button" class="btn btn-secondary" id="cancel-metadata">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+<script>
+    // ================ THEME SWITCHER FUNCTIONS ================
+    // Theme definitions
+    const themes = [
+        {
+            id: 'light',
+            name: 'Light',
+            description: 'Tema terang standar',
+            colors: ['#f8f9fa', '#ffffff', '#4a6fa5', '#166088', '#2563eb']
+        },
+        {
+            id: 'dark',
+            name: 'Dark',
+            description: 'Tema gelap klasik',
+            colors: ['#121212', '#1e1e1e', '#d4af37', '#b8941f', '#38bdf8']
+        },
+        {
+            id: 'cosmic-neon-dark',
+            name: 'Cosmic Neon',
+            description: 'Tema gelap dengan aksen neon',
+            colors: ['#0a0014', '#14001f', '#e879f9', '#c084fc', '#f472b6']
+        },
+        {
+            id: 'deep-blue-dark',
+            name: 'Deep Blue',
+            description: 'Lautan biru yang dalam',
+            colors: ['#020617', '#0c4a6e', '#38bdf8', '#0ea5e9', '#7dd3fc']
+        },
+        {
+            id: 'emerald-dark',
+            name: 'Emerald Dark',
+            description: 'Hijau zamrud yang elegan',
+            colors: ['#0f1214', '#1c2326', '#00c9b1', '#5eead4', '#34d399']
+        },
+        {
+            id: 'midnight-dark',
+            name: 'Midnight',
+            description: 'Ungu tengah malam',
+            colors: ['#0b1020', '#131a2e', '#6366f1', '#818cf8', '#a5b4fc']
+        },
+        {
+            id: 'violet-glow-dark',
+            name: 'Violet Glow',
+            description: 'Ungu dengan cahaya lembut',
+            colors: ['#0b0614', '#160b2e', '#a855f7', '#c084fc', '#d8b4fe']
+        }
+    ];
+
+    // DOM Elements for theme switcher
+    const themeDrawer = document.getElementById('theme-drawer');
+    const themeOverlay = document.getElementById('theme-overlay');
+    const closeDrawerBtn = document.getElementById('close-drawer');
+    const swipeIndicator = document.getElementById('swipe-indicator');
+    const swipeZone = document.getElementById('swipe-zone');
+    const themeGrid = document.getElementById('theme-grid');
+    const themeToast = document.getElementById('theme-toast');
+    const toastTitle = document.getElementById('toast-title');
+    const toastMessage = document.getElementById('toast-message');
+    const currentThemeName = document.getElementById('current-theme-name');
+    const countdownTimer = document.getElementById('countdown-timer');
+    const timerDisplay = document.getElementById('timer-display');
+
+    // State variables
+    let selectedTheme = 'emerald-dark';
+    let isDrawerOpen = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    
+    // Timer variables
+    let resetTimer = null;
+    const RESET_TIME = 500000; // 500,000 detik (~5.8 hari)
+    let resetTimeLeft = 0;
+    let countdownInterval = null;
+
+    // Initialize theme from localStorage or default
+    function initTheme() {
+        const savedTheme = localStorage.getItem('amemuvlucht-theme');
+        const savedTimerEnd = localStorage.getItem('amemuvlucht-theme-timer-end');
+        
+        if (savedTheme && savedTimerEnd) {
+            const now = Date.now();
+            const timerEnd = parseInt(savedTimerEnd);
+            
+            // Cek apakah timer masih berlaku
+            if (now < timerEnd) {
+                selectedTheme = savedTheme;
+                applyTheme(selectedTheme, false);
+                
+                // Hitung sisa waktu
+                resetTimeLeft = Math.floor((timerEnd - now) / 1000);
+                startCountdown();
+            } else {
+                // Timer sudah habis, kembali ke default
+                applyTheme('emerald-dark', false);
+                localStorage.removeItem('amemuvlucht-theme');
+                localStorage.removeItem('amemuvlucht-theme-timer-end');
+            }
+        } else {
+            applyTheme('emerald-dark', false);
+        }
+        
+        updateThemeGrid();
+        updateCurrentThemeName();
+    }
+
+    // Generate theme options in the drawer
+    function updateThemeGrid() {
+        themeGrid.innerHTML = '';
+
+        themes.forEach(theme => {
+            const themeOption = document.createElement('div');
+            themeOption.className = `theme-option ${theme.id === selectedTheme ? 'active' : ''}`;
+            themeOption.dataset.theme = theme.id;
+            themeOption.setAttribute('role', 'listitem');
+
+            const previewHtml = `
+                <div class="theme-preview">
+                    ${theme.colors.map(color => 
+                        `<div class="theme-color" style="background-color: ${color};" title="${color}"></div>`
+                    ).join('')}
+                </div>
+                <div class="theme-info">
+                    <h4>${theme.name}</h4>
+                    <p>${theme.description}</p>
+                </div>
+                ${theme.id === selectedTheme ? '<div class="theme-check"><i class="fas fa-check"></i></div>' : ''}
+            `;
+
+            themeOption.innerHTML = previewHtml;
+            themeGrid.appendChild(themeOption);
+        });
+
+        // Add click event listeners to theme options
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const themeId = this.dataset.theme;
+                applyTheme(themeId, true);
+                closeDrawer(); // Tutup drawer setelah memilih tema
+            });
+        });
+    }
+
+    // Apply the selected theme permanently
+    function applyTheme(themeId, showToast = true) {
+        // Clear existing timer and countdown
+        clearTimeout(resetTimer);
+        clearInterval(countdownInterval);
+        
+        selectedTheme = themeId;
+
+        // Remove all theme classes and add the selected one
+        document.body.classList.remove(...themes.map(t => t.id));
+        document.body.classList.add(themeId);
+
+        // Save to localStorage
+        localStorage.setItem('amemuvlucht-theme', themeId);
+        
+        // Jika tema bukan default, set timer untuk kembali ke default
+        if (themeId !== 'emerald-dark') {
+            // Hitung waktu berakhirnya timer
+            const timerEnd = Date.now() + (RESET_TIME * 1000);
+            localStorage.setItem('amemuvlucht-theme-timer-end', timerEnd.toString());
+            
+            // Set timer untuk kembali ke default
+            resetTimer = setTimeout(() => {
+                applyTheme('emerald-dark', true);
+                showThemeToast('Tema Direset!', 'Tema telah kembali ke default (Emerald Dark) setelah 5.8 hari.');
+            }, RESET_TIME * 1000);
+            
+            // Mulai countdown display
+            resetTimeLeft = RESET_TIME;
+            startCountdown();
+            countdownTimer.classList.add('show');
+        } else {
+            // Jika memilih tema default, hapus timer
+            localStorage.removeItem('amemuvlucht-theme-timer-end');
+            countdownTimer.classList.remove('show');
+        }
+
+        // Update UI
+        updateThemeGrid();
+        updateCurrentThemeName();
+
+        // Show toast notification
+        if (showToast) {
+            const theme = themes.find(t => t.id === themeId);
+            showThemeToast('Tema Diubah!', `Tema "${theme.name}" telah diterapkan.`);
+        }
+    }
+
+    // Start countdown display
+    function startCountdown() {
+        // Clear existing interval
+        clearInterval(countdownInterval);
+        
+        // Update display immediately
+        updateTimerDisplay();
+        
+        // Update every second
+        countdownInterval = setInterval(() => {
+            if (resetTimeLeft > 0) {
+                resetTimeLeft--;
+                updateTimerDisplay();
+            } else {
+                clearInterval(countdownInterval);
+                countdownTimer.classList.remove('show');
+            }
+        }, 1000);
+    }
+
+    // Update timer display
+    function updateTimerDisplay() {
+        const days = Math.floor(resetTimeLeft / (24 * 60 * 60));
+        const hours = Math.floor((resetTimeLeft % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((resetTimeLeft % (60 * 60)) / 60);
+        const seconds = resetTimeLeft % 60;
+        
+        let displayText = '';
+        
+        if (days > 0) {
+            displayText = `${days} hari ${hours} jam ${minutes} menit`;
+        } else if (hours > 0) {
+            displayText = `${hours} jam ${minutes} menit ${seconds} detik`;
+        } else if (minutes > 0) {
+            displayText = `${minutes} menit ${seconds} detik`;
+        } else {
+            displayText = `${seconds} detik`;
+        }
+        
+        timerDisplay.textContent = displayText;
+    }
+
+    // Update current theme name display
+    function updateCurrentThemeName() {
+        const theme = themes.find(t => t.id === selectedTheme);
+        if (theme) {
+            currentThemeName.textContent = theme.name;
+        }
+    }
+
+    // Show toast notification
+    function showThemeToast(title, message) {
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+        themeToast.classList.add('show');
+
+        setTimeout(() => {
+            themeToast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Open theme drawer
+    function openDrawer() {
+        themeDrawer.classList.add('active');
+        themeOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        isDrawerOpen = true;
+    }
+
+    // Close theme drawer
+    function closeDrawer() {
+        themeDrawer.classList.remove('active');
+        themeOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        isDrawerOpen = false;
+    }
+
+    // Touch swipe detection
+    function handleTouchStart(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }
+
+    function handleTouchEnd(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipeGesture();
+    }
+
+    function handleSwipeGesture() {
+        // Calculate swipe distance and direction
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // Only consider horizontal swipes
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // Swipe from right edge to left (open drawer)
+            if (touchStartX > window.innerWidth - 50 && deltaX < -50 && !isDrawerOpen) {
+                openDrawer();
+            }
+            // Swipe from left to right (close drawer)
+            else if (isDrawerOpen && deltaX > 50) {
+                closeDrawer();
+            }
+        }
+    }
+
+    // Mouse drag detection for desktop
+    let isDragging = false;
+    let dragStartX = 0;
+
+    function handleMouseDown(e) {
+        // Only trigger from right edge
+        if (e.clientX > window.innerWidth - 50) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            e.preventDefault();
+        }
+    }
+
+    function handleMouseMove(e) {
+        if (!isDragging) return;
+
+        const deltaX = e.clientX - dragStartX;
+
+        // If dragging from right edge to left
+        if (deltaX < -50 && !isDrawerOpen) {
+            openDrawer();
+            isDragging = false;
+        }
+    }
+
+    function handleMouseUp() {
+        isDragging = false;
+    }
+
+    // Keyboard shortcuts
+    function handleKeyDown(e) {
+        // Escape key closes drawer
+        if (e.key === 'Escape' && isDrawerOpen) {
+            closeDrawer();
+        }
+        // Ctrl+Shift+T opens theme drawer
+        if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+            e.preventDefault();
+            openDrawer();
+        }
+    }
+
+    // Initialize event listeners
+    function initEventListeners() {
+        // Drawer controls
+        swipeIndicator.addEventListener('click', openDrawer);
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+        themeOverlay.addEventListener('click', closeDrawer);
+
+        // Touch events for mobile swipe
+        swipeZone.addEventListener('touchstart', handleTouchStart, {passive: true});
+        swipeZone.addEventListener('touchend', handleTouchEnd, {passive: true});
+
+        // Mouse events for desktop drag
+        document.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+
+        // Keyboard events
+        document.addEventListener('keydown', handleKeyDown);
+
+        // Prevent drawer from closing when clicking inside it
+        themeDrawer.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // ================ FILE QUEUE SYSTEM ================
+    
+    // File categories mapping
+    const fileCategories = {
+        // Visual
+        'jpg': 'visual', 'jpeg': 'visual', 'png': 'visual', 'gif': 'visual', 
+        'svg': 'visual', 'webp': 'visual', 'bmp': 'visual', 'ico': 'visual',
+        // Document
+        'pdf': 'document', 'doc': 'document', 'docx': 'document', 'txt': 'document',
+        'csv': 'document', 'xls': 'document', 'xlsx': 'document', 'ppt': 'document',
+        'pptx': 'document', 'rtf': 'document', 'odt': 'document',
+        // Media
+        'mp3': 'media', 'mp4': 'media', 'avi': 'media', 'mkv': 'media',
+        'mov': 'media', 'wav': 'media', 'flac': 'media', 'wmv': 'media',
+        'm4a': 'media', 'ogg': 'media', 'webm': 'media',
+        // Web
+        'html': 'web', 'htm': 'web', 'css': 'web', 'js': 'web',
+        'json': 'web', 'xml': 'web', 'php': 'web', 'ts': 'web',
+        // Archive
+        'zip': 'archive', 'rar': 'archive', '7z': 'archive', 'tar': 'archive',
+        'gz': 'archive', 'bz2': 'archive', 'xz': 'archive',
+        // Program
+        'exe': 'program', 'apk': 'program', 'py': 'program', 'java': 'program',
+        'cpp': 'program', 'c': 'program', 'sh': 'program', 'bat': 'program',
+        'msi': 'program', 'dmg': 'program',
+        // Other (default)
+    };
+    
+    const categoryNames = {
+        'visual': 'Visual',
+        'document': 'Document',
+        'media': 'Media',
+        'web': 'Web',
+        'archive': 'Archive',
+        'program': 'Program',
+        'other': 'Other'
+    };
+    
+    const categoryColors = {
+        'visual': 'type-visual',
+        'document': 'type-document',
+        'media': 'type-media',
+        'web': 'type-web',
+        'archive': 'type-archive',
+        'program': 'type-program',
+        'other': 'type-other'
+    };
+    
+    const categoryIcons = {
+        'visual': 'fas fa-image',
+        'document': 'fas fa-file-alt',
+        'media': 'fas fa-film',
+        'web': 'fas fa-code',
+        'archive': 'fas fa-file-archive',
+        'program': 'fas fa-cogs',
+        'other': 'fas fa-file'
+    };
+    
+    // File queue data
+    let fileQueue = [];
+    let fileCounter = 0;
+    let selectedFiles = new Set();
+    let isGrouped = false;
+    let collapsedGroups = new Set();
+    
+    // Upload state
+    let isUploading = false;
+    let uploadSpeed = 0;
+    let uploadStartTime = null;
+    let uploadedBytes = 0;
+    let totalBytes = 0;
+    let parallelUploads = 3;
+    let activeUploads = 0;
+    let uploadInterval = null;
+    
+    // DOM Elements for queue system
+    const queueBody = document.getElementById('queue-body');
+    const emptyQueue = document.getElementById('empty-queue');
+    const totalFilesEl = document.getElementById('total-files');
+    const uploadedFilesEl = document.getElementById('uploaded-files');
+    const pendingFilesEl = document.getElementById('pending-files');
+    const uploadStatsEl = document.getElementById('upload-stats');
+    const uploadSpeedEl = document.getElementById('upload-speed');
+    const timeRemainingEl = document.getElementById('time-remaining');
+    const parallelCountEl = document.getElementById('parallel-count');
+    
+    // Control elements - Mobile
+    const selectAllBtn = document.getElementById('select-all-btn');
+    const deselectAllBtn = document.getElementById('deselect-all-btn');
+    const bulkUploadBtn = document.getElementById('bulk-upload-btn');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    
+    // Control elements - Desktop
+    const selectAllBtnDesktop = document.getElementById('select-all-btn-desktop');
+    const deselectAllBtnDesktop = document.getElementById('deselect-all-btn-desktop');
+    const bulkUploadBtnDesktop = document.getElementById('bulk-upload-btn-desktop');
+    const bulkDeleteBtnDesktop = document.getElementById('bulk-delete-btn-desktop');
+    
+    const headerCheckbox = document.getElementById('header-checkbox');
+    const fileSearch = document.getElementById('file-search');
+    const sortBy = document.getElementById('sort-by');
+    const filterCategory = document.getElementById('filter-category');
+    const groupToggle = document.getElementById('group-toggle');
+    
+    // Modal elements
+    const previewModal = document.getElementById('preview-modal');
+    const closePreview = document.getElementById('close-preview');
+    const previewTitle = document.getElementById('preview-title');
+    const previewBody = document.getElementById('preview-body');
+    const metadataModal = document.getElementById('metadata-modal');
+    const closeMetadata = document.getElementById('close-metadata');
+    const cancelMetadata = document.getElementById('cancel-metadata');
+    const metadataForm = document.getElementById('metadata-form');
+    
+    // ================ PRODUCTION UPLOAD FUNCTIONS ================
+    // Konfigurasi API
+    const API_BASE_URL = window.location.origin; // Akan otomatis menyesuaikan domain
+
+    // Fungsi upload nyata menggunakan XMLHttpRequest untuk progress tracking
+    async function realUpload(fileData) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            const formData = new FormData();
+            formData.append('file', fileData.file);
+            formData.append('path', fileData.path || '');
+
+            // Setup progress tracking
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    fileData.progress = Math.round(percentComplete);
+                    
+                    // Calculate upload speed
+                    const currentTime = Date.now();
+                    const timeDiff = (currentTime - fileData.uploadStartTime) / 1000;
+                    if (timeDiff > 0) {
+                        fileData.uploadSpeed = e.loaded / timeDiff;
+                    }
+                    
+                    // Update UI
+                    updateFileProgressInUI(fileData);
+                }
+            });
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        fileData.status = 'uploaded';
+                        fileData.progress = 100;
+                        fileData.serverPath = response.file.path;
+                        fileData.uploadedAt = new Date().toISOString();
+                        
+                        // Update counters
+                        uploadedBytes += fileData.size;
+                        
+                        resolve(response);
+                    } else {
+                        fileData.status = 'error';
+                        fileData.error = response.error || 'Upload failed';
+                        reject(new Error(fileData.error));
+                    }
+                } else {
+                    fileData.status = 'error';
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        fileData.error = errorResponse.error || `Server error: ${xhr.status}`;
+                    } catch {
+                        fileData.error = `Server error: ${xhr.status}`;
+                    }
+                    reject(new Error(`Upload failed with status ${xhr.status}`));
+                }
+                updateFileProgressInUI(fileData);
+            };
+
+            xhr.onerror = function() {
+                fileData.status = 'error';
+                fileData.error = 'Network error';
+                updateFileProgressInUI(fileData);
+                reject(new Error('Network error during upload'));
+            };
+
+            xhr.open('POST', `${API_BASE_URL}/api/upload`);
+            fileData.uploadStartTime = Date.now();
+            fileData.status = 'uploading';
+            xhr.send(formData);
+        });
+    }
+
+    // Fungsi untuk update UI progress
+    function updateFileProgressInUI(fileData) {
+        const item = document.querySelector(`.queue-item[data-file-id="${fileData.id}"]`);
+        if (!item) return;
+
+        const progressFill = item.querySelector('.progress-fill');
+        const progressText = item.querySelector('.progress-text');
+        
+        if (progressFill) {
+            progressFill.style.width = `${fileData.progress}%`;
+            
+            // Warna berdasarkan status
+            if (fileData.status === 'error') {
+                progressFill.style.background = 'var(--error)';
+            } else if (fileData.status === 'uploaded') {
+                progressFill.style.background = 'var(--success)';
+            } else {
+                progressFill.style.background = 'var(--primary)';
+            }
+        }
+        
+        if (progressText) {
+            if (fileData.status === 'error') {
+                progressText.textContent = `Error: ${fileData.error || 'Failed'}`;
+                progressText.style.color = 'var(--error)';
+            } else if (fileData.status === 'uploaded') {
+                progressText.textContent = 'Uploaded ✓';
+                progressText.style.color = 'var(--success)';
+            } else if (fileData.status === 'uploading') {
+                const speed = fileData.uploadSpeed ? formatFileSize(fileData.uploadSpeed) + '/s' : '...';
+                progressText.textContent = `${fileData.progress}% (${speed})`;
+            } else {
+                progressText.textContent = 'Pending';
+            }
+        }
+    }
+
+    // Fungsi untuk upload banyak file sekaligus (optimized)
+    async function uploadMultipleFiles(filesData) {
+        const maxParallel = parallelUploads;
+        const results = [];
+        
+        for (let i = 0; i < filesData.length; i += maxParallel) {
+            const batch = filesData.slice(i, i + maxParallel);
+            
+            // Upload batch secara parallel
+            const batchPromises = batch.map(fileData => {
+                if (fileData.status === 'pending') {
+                    activeUploads++;
+                    return realUpload(fileData).finally(() => {
+                        activeUploads--;
+                    });
+                }
+                return Promise.resolve();
+            });
+            
+            await Promise.allSettled(batchPromises);
+            
+            // Update stats
+            updateUploadStats();
+        }
+        
+        return results;
+    }
+
+    // Fungsi untuk update upload stats
+    function updateUploadStats() {
+        // Hitung ulang uploadedBytes
+        uploadedBytes = fileQueue
+            .filter(f => f.status === 'uploaded')
+            .reduce((sum, f) => sum + f.size, 0);
+    }
+
+    // Ganti fungsi uploadSelectedFiles dengan yang real
+    async function uploadSelectedFiles() {
+        if (selectedFiles.size === 0) {
+            showUploadToast('No Files Selected', 'Please select files to upload.');
+            return;
+        }
+
+        if (isUploading) {
+            showUploadToast('Upload in Progress', 'Please wait for current upload to complete.');
+            return;
+        }
+
+        // Reset upload stats
+        isUploading = true;
+        uploadSpeed = 0;
+        uploadedBytes = 0;
+        totalBytes = 0;
+        uploadStartTime = Date.now();
+        activeUploads = 0;
+
+        // Calculate total bytes
+        const filesToUpload = fileQueue.filter(f => 
+            selectedFiles.has(f.id) && f.status !== 'uploaded'
+        );
+        
+        filesToUpload.forEach(file => {
+            totalBytes += file.size;
+            file.status = 'uploading';
+            file.progress = 0;
+            file.uploadStartTime = null;
+            file.uploadSpeed = 0;
+        });
+
+        // Show upload stats
+        uploadStatsEl.style.display = 'block';
+        parallelCountEl.textContent = parallelUploads;
+
+        // Start upload speed monitoring
+        startUploadSpeedMonitor();
+
+        try {
+            // Upload files
+            await uploadMultipleFiles(filesToUpload);
+            
+            showUploadToast('Upload Complete', `${filesToUpload.length} files uploaded successfully!`);
+        } catch (error) {
+            console.error('Upload error:', error);
+            showUploadToast('Upload Error', 'Some files failed to upload. Check queue for details.');
+        } finally {
+            isUploading = false;
+            clearInterval(uploadInterval);
+            
+            // Hide stats after delay
+            setTimeout(() => {
+                if (!isUploading) {
+                    uploadStatsEl.style.display = 'none';
+                }
+            }, 5000);
+            
+            // Save queue state
+            saveQueueToStorage();
+            updateQueueDisplay();
+        }
+    }
+
+    // ================ EXISTING QUEUE FUNCTIONS (DIMODIFIKASI) ================
+    
+    // Initialize file queue system
+    function initFileQueue() {
+        // Load saved queue from localStorage
+        const savedQueue = localStorage.getItem('amemuvlucht-file-queue');
+        if (savedQueue) {
+            try {
+                const parsed = JSON.parse(savedQueue);
+                // Hanya simpan metadata, File object tidak bisa disimpan
+                fileQueue = parsed.filter(item => item.status !== 'uploaded');
+                fileCounter = fileQueue.length > 0 ? Math.max(...fileQueue.map(f => f.id)) + 1 : 0;
+                updateQueueDisplay();
+            } catch (e) {
+                console.error('Error loading saved queue:', e);
+            }
+        }
+        
+        // Initialize event listeners
+        initQueueEventListeners();
+    }
+    
+    // Initialize event listeners for queue controls
+    function initQueueEventListeners() {
+        // Bulk operations - Mobile
+        selectAllBtn.addEventListener('click', selectAllFiles);
+        deselectAllBtn.addEventListener('click', deselectAllFiles);
+        bulkUploadBtn.addEventListener('click', uploadSelectedFiles);
+        bulkDeleteBtn.addEventListener('click', deleteSelectedFiles);
+        
+        // Bulk operations - Desktop
+        selectAllBtnDesktop.addEventListener('click', selectAllFiles);
+        deselectAllBtnDesktop.addEventListener('click', deselectAllFiles);
+        bulkUploadBtnDesktop.addEventListener('click', uploadSelectedFiles);
+        bulkDeleteBtnDesktop.addEventListener('click', deleteSelectedFiles);
+        
+        headerCheckbox.addEventListener('change', toggleHeaderCheckbox);
+        
+        // Search and filter
+        fileSearch.addEventListener('input', debounce(updateQueueDisplay, 300));
+        sortBy.addEventListener('change', updateQueueDisplay);
+        filterCategory.addEventListener('change', updateQueueDisplay);
+        groupToggle.addEventListener('change', toggleGrouping);
+        
+        // Modal controls
+        closePreview.addEventListener('click', () => {
+            previewModal.style.display = 'none';
+            previewModal.setAttribute('hidden', 'true');
+        });
+        closeMetadata.addEventListener('click', () => {
+            metadataModal.style.display = 'none';
+            metadataModal.setAttribute('hidden', 'true');
+        });
+        cancelMetadata.addEventListener('click', () => {
+            metadataModal.style.display = 'none';
+            metadataModal.setAttribute('hidden', 'true');
+        });
+        
+        // Close modals when clicking overlay
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) {
+                previewModal.style.display = 'none';
+                previewModal.setAttribute('hidden', 'true');
+            }
+        });
+        
+        metadataModal.addEventListener('click', (e) => {
+            if (e.target === metadataModal) {
+                metadataModal.style.display = 'none';
+                metadataModal.setAttribute('hidden', 'true');
+            }
+        });
+        
+        // Metadata form submission
+        metadataForm.addEventListener('submit', saveFileMetadata);
+    }
+    
+    // Debounce function for search
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Add files to queue (called from upload system)
+    function addFilesToQueue(files, stripRoot = false, source = 'unknown') {
+        const newFiles = [];
+        
+        for (const file of files) {
+            const fileId = fileCounter++;
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            const category = fileCategories[fileExt] || 'other';
+            
+            // Determine file path
+            let filePath = file.name;
+            let displayPath = file.name;
+            
+            if (file.webkitRelativePath) {
+                displayPath = file.webkitRelativePath;
+                
+                if (stripRoot && source === 'content-picker') {
+                    const parts = file.webkitRelativePath.split('/');
+                    if (parts.length > 1) {
+                        parts.shift(); // Remove root folder
+                        filePath = parts.join('/');
+                    }
+                } else {
+                    filePath = file.webkitRelativePath;
+                }
+            }
+            
+            const fileData = {
+                id: fileId,
+                file: file,
+                name: displayPath.split('/').pop(),
+                path: filePath,
+                displayPath: displayPath,
+                size: file.size,
+                type: category,
+                category: category,
+                tags: [],
+                description: '',
+                status: 'pending', // pending, uploading, uploaded, error
+                progress: 0,
+                uploadSpeed: 0,
+                timeAdded: new Date().toISOString(),
+                lastModified: file.lastModified
+            };
+            
+            fileQueue.push(fileData);
+            newFiles.push(fileData);
+        }
+        
+        // Save to localStorage (tanpa File object)
+        saveQueueToStorage();
+        
+        // Update display
+        updateQueueDisplay();
+        
+        // Show notification
+        showUploadToast('Files Added to Queue', `${newFiles.length} files added to upload queue.`);
+        
+        return newFiles;
+    }
+    
+    // Update the queue display
+    function updateQueueDisplay() {
+        // Get filtered and sorted files
+        let filteredFiles = [...fileQueue];
+        
+        // Apply search filter
+        const searchTerm = fileSearch.value.toLowerCase();
+        if (searchTerm) {
+            filteredFiles = filteredFiles.filter(file => 
+                file.name.toLowerCase().includes(searchTerm) || 
+                file.displayPath.toLowerCase().includes(searchTerm) ||
+                file.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            );
+        }
+        
+        // Apply category filter
+        const categoryFilter = filterCategory.value;
+        if (categoryFilter !== 'all') {
+            filteredFiles = filteredFiles.filter(file => file.category === categoryFilter);
+        }
+        
+        // Apply sorting
+        const sortOption = sortBy.value;
+        filteredFiles.sort((a, b) => {
+            switch (sortOption) {
+                case 'name':
+                    return a.name.localeCompare(b.name);
+                case 'name-desc':
+                    return b.name.localeCompare(a.name);
+                case 'size':
+                    return a.size - b.size;
+                case 'size-desc':
+                    return b.size - a.size;
+                case 'date':
+                    return new Date(b.timeAdded) - new Date(a.timeAdded);
+                case 'date-desc':
+                    return new Date(a.timeAdded) - new Date(b.timeAdded);
+                case 'type':
+                    return a.category.localeCompare(b.category);
+                default:
+                    return 0;
+            }
+        });
+        
+        // Update counters
+        updateFileCounters();
+        
+        // Clear queue body
+        queueBody.innerHTML = '';
+        
+        // Check if empty
+        if (filteredFiles.length === 0) {
+            emptyQueue.style.display = 'block';
+            queueBody.appendChild(emptyQueue);
+            return;
+        } else {
+            emptyQueue.style.display = 'none';
+        }
+        
+        // Group files if enabled
+        if (isGrouped && groupToggle.checked) {
+            const groupedFiles = groupFilesByCategory(filteredFiles);
+            
+            for (const [category, files] of Object.entries(groupedFiles)) {
+                const isCollapsed = collapsedGroups.has(category);
+                
+                // Create group header
+                const groupHeader = document.createElement('div');
+                groupHeader.className = `group-header ${isCollapsed ? 'collapsed' : ''}`;
+                groupHeader.dataset.category = category;
+                groupHeader.innerHTML = `
+                    <div>
+                        <i class="fas fa-chevron-down"></i>
+                        ${categoryNames[category]} (${files.length} files)
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                        Total: ${formatFileSize(files.reduce((sum, f) => sum + f.size, 0))}
+                    </div>
+                `;
+                
+                groupHeader.addEventListener('click', () => toggleGroup(category));
+                queueBody.appendChild(groupHeader);
+                
+                // Create group content
+                if (!isCollapsed) {
+                    files.forEach(file => {
+                        queueBody.appendChild(createQueueItem(file));
+                    });
+                }
+            }
+        } else {
+            // Display all files without grouping
+            filteredFiles.forEach(file => {
+                queueBody.appendChild(createQueueItem(file));
+            });
+        }
+    }
+    
+    // Group files by category
+    function groupFilesByCategory(files) {
+        const groups = {};
+        
+        files.forEach(file => {
+            if (!groups[file.category]) {
+                groups[file.category] = [];
+            }
+            groups[file.category].push(file);
+        });
+        
+        // Sort groups by category name
+        return Object.keys(groups)
+            .sort()
+            .reduce((sorted, key) => {
+                sorted[key] = groups[key];
+                return sorted;
+            }, {});
+    }
+    
+    // Toggle group collapse/expand
+    function toggleGroup(category) {
+        if (collapsedGroups.has(category)) {
+            collapsedGroups.delete(category);
+        } else {
+            collapsedGroups.add(category);
+        }
+        
+        updateQueueDisplay();
+    }
+    
+    // Toggle grouping on/off
+    function toggleGrouping() {
+        isGrouped = groupToggle.checked;
+        updateQueueDisplay();
+    }
+    
+    // Create a queue item element
+    function createQueueItem(file) {
+        const item = document.createElement('div');
+        item.className = `queue-item ${selectedFiles.has(file.id) ? 'selected' : ''}`;
+        item.dataset.fileId = file.id;
+        
+        // Get appropriate icon
+        const fileIcon = categoryIcons[file.category] || 'fas fa-file';
+        
+        // Format tags
+        const tagsHtml = file.tags.map(tag => 
+            `<span class="tag">${tag}</span>`
+        ).join('');
+        
+        // Progress bar based on status
+        let progressHtml = '';
+        if (file.status === 'uploading' || file.status === 'uploaded' || file.status === 'error') {
+            progressHtml = `
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${file.progress}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        ${file.status === 'uploaded' ? 'Uploaded ✓' : 
+                          file.status === 'error' ? `Error: ${file.error || 'Failed'}` : 
+                          `${file.progress}% ${file.uploadSpeed ? '(' + formatFileSize(file.uploadSpeed) + '/s)' : ''}`}
+                    </div>
+                </div>
+            `;
+        }
+        
+        item.innerHTML = `
+            <div class="checkbox-cell">
+                <input type="checkbox" class="file-checkbox" data-file-id="${file.id}" ${selectedFiles.has(file.id) ? 'checked' : ''}>
+            </div>
+            <div class="file-name">
+                <i class="${fileIcon} file-icon"></i>
+                <div style="min-width: 0; flex: 1;">
+                    <div class="file-name-text">${file.name}</div>
+                    <div class="file-path">${file.displayPath}</div>
+                </div>
+            </div>
+            <div class="file-size">${formatFileSize(file.size)}</div>
+            <div class="desktop-only">
+                <span class="file-type ${categoryColors[file.category]}">${categoryNames[file.category]}</span>
+            </div>
+            <div class="file-tags desktop-only">
+                ${tagsHtml || '<span style="color: var(--text-muted); font-style: italic;">No tags</span>'}
+            </div>
+            <div class="actions">
+                <button class="action-btn preview-btn" data-file-id="${file.id}" title="Preview">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn edit-btn" data-file-id="${file.id}" title="Edit Metadata">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn upload-btn" data-file-id="${file.id}" title="Upload" ${file.status === 'uploaded' || file.status === 'uploading' ? 'disabled style="opacity: 0.5;"' : ''}>
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </button>
+                <button class="action-btn delete-btn" data-file-id="${file.id}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+                ${progressHtml}
+            </div>
+        `;
+        
+        // Add event listeners to buttons
+        const checkbox = item.querySelector('.file-checkbox');
+        checkbox.addEventListener('change', () => toggleFileSelection(file.id, checkbox.checked));
+        
+        item.querySelector('.preview-btn').addEventListener('click', () => previewFile(file));
+        item.querySelector('.edit-btn').addEventListener('click', () => editFileMetadata(file));
+        item.querySelector('.upload-btn').addEventListener('click', () => uploadFile(file.id));
+        item.querySelector('.delete-btn').addEventListener('click', () => deleteFile(file.id));
+        
+        return item;
+    }
+    
+    // Update file counters
+    function updateFileCounters() {
+        const total = fileQueue.length;
+        const uploaded = fileQueue.filter(f => f.status === 'uploaded').length;
+        const pending = fileQueue.filter(f => f.status === 'pending').length;
+        
+        // Update mobile counters
+        if (totalFilesEl) totalFilesEl.textContent = total;
+        if (uploadedFilesEl) uploadedFilesEl.textContent = uploaded;
+        if (pendingFilesEl) pendingFilesEl.textContent = pending;
+        
+        // Update desktop counters
+        const totalFilesDesktop = document.getElementById('total-files-desktop');
+        const uploadedFilesDesktop = document.getElementById('uploaded-files-desktop');
+        const pendingFilesDesktop = document.getElementById('pending-files-desktop');
+        
+        if (totalFilesDesktop) totalFilesDesktop.textContent = total;
+        if (uploadedFilesDesktop) uploadedFilesDesktop.textContent = uploaded;
+        if (pendingFilesDesktop) pendingFilesDesktop.textContent = pending;
+        
+        // Update header checkbox state
+        const allSelected = fileQueue.length > 0 && selectedFiles.size === fileQueue.length;
+        headerCheckbox.checked = allSelected;
+        headerCheckbox.indeterminate = selectedFiles.size > 0 && selectedFiles.size < fileQueue.length;
+    }
+    
+    // Toggle file selection
+    function toggleFileSelection(fileId, selected) {
+        if (selected) {
+            selectedFiles.add(fileId);
+        } else {
+            selectedFiles.delete(fileId);
+        }
+        
+        // Update UI
+        const item = document.querySelector(`.queue-item[data-file-id="${fileId}"]`);
+        if (item) {
+            item.classList.toggle('selected', selected);
+        }
+        
+        updateFileCounters();
+    }
+    
+    // Select all files
+    function selectAllFiles() {
+        selectedFiles.clear();
+        fileQueue.forEach(file => selectedFiles.add(file.id));
+        
+        // Update checkboxes
+        document.querySelectorAll('.file-checkbox').forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        
+        updateQueueDisplay();
+    }
+    
+    // Deselect all files
+    function deselectAllFiles() {
+        selectedFiles.clear();
+        
+        // Update checkboxes
+        document.querySelectorAll('.file-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        updateQueueDisplay();
+    }
+    
+    // Toggle header checkbox
+    function toggleHeaderCheckbox() {
+        if (headerCheckbox.checked) {
+            selectAllFiles();
+        } else {
+            deselectAllFiles();
+        }
+    }
+    
+    // Upload a single file (dengan real upload)
+    async function uploadFile(fileId) {
+        const fileData = fileQueue.find(f => f.id === fileId);
+        if (!fileData || fileData.status === 'uploading' || fileData.status === 'uploaded') {
+            return;
+        }
+        
+        // Update file status
+        fileData.status = 'uploading';
+        fileData.progress = 0;
+        fileData.uploadSpeed = 0;
+        fileData.uploadStartTime = Date.now();
+        
+        // Update UI
+        updateQueueDisplay();
+        
+        try {
+            await realUpload(fileData);
+        } catch (error) {
+            console.error('Upload error:', error);
+            fileData.status = 'error';
+            fileData.error = error.message;
+            updateFileProgressInUI(fileData);
+        }
+        
+        // Save to localStorage
+        saveQueueToStorage();
+    }
+    
+    // Start upload speed monitoring (real)
+    function startUploadSpeedMonitor() {
+        let lastBytes = 0;
+        let lastTime = Date.now();
+        
+        uploadInterval = setInterval(() => {
+            if (!isUploading) {
+                clearInterval(uploadInterval);
+                return;
+            }
+            
+            const now = Date.now();
+            const timeDiff = (now - lastTime) / 1000; // in seconds
+            
+            if (timeDiff > 0) {
+                // Calculate current speed
+                const currentBytes = uploadedBytes;
+                const bytesDiff = currentBytes - lastBytes;
+                uploadSpeed = bytesDiff / timeDiff;
+                
+                // Update display
+                uploadSpeedEl.textContent = `${formatFileSize(uploadSpeed)}/s`;
+                
+                // Calculate time remaining
+                const remainingBytes = totalBytes - currentBytes;
+                if (uploadSpeed > 0) {
+                    const secondsRemaining = remainingBytes / uploadSpeed;
+                    timeRemainingEl.textContent = formatTime(secondsRemaining);
+                }
+                
+                // Update for next calculation
+                lastBytes = currentBytes;
+                lastTime = now;
+            }
+        }, 1000); // Update every second
+    }
+    
+    // Delete a single file
+    function deleteFile(fileId) {
+        if (confirm('Are you sure you want to delete this file from the queue?')) {
+            fileQueue = fileQueue.filter(f => f.id !== fileId);
+            selectedFiles.delete(fileId);
+            
+            saveQueueToStorage();
+            updateQueueDisplay();
+            
+            showUploadToast('File Deleted', 'File removed from upload queue.');
+        }
+    }
+    
+    // Delete selected files
+    function deleteSelectedFiles() {
+        if (selectedFiles.size === 0) {
+            showUploadToast('No Files Selected', 'Please select files to delete.');
+            return;
+        }
+        
+        if (confirm(`Are you sure you want to delete ${selectedFiles.size} files from the queue?`)) {
+            fileQueue = fileQueue.filter(f => !selectedFiles.has(f.id));
+            selectedFiles.clear();
+            
+            saveQueueToStorage();
+            updateQueueDisplay();
+            
+            showUploadToast('Files Deleted', `${selectedFiles.size} files removed from upload queue.`);
+        }
+    }
+    
+    // Preview file
+    function previewFile(fileData) {
+        previewTitle.textContent = `Preview: ${fileData.name}`;
+        
+        // Clear previous content
+        previewBody.innerHTML = '';
+        
+        // Show loading
+        const loading = document.createElement('div');
+        loading.className = 'preview-placeholder';
+        loading.innerHTML = `
+            <i class="fas fa-spinner fa-spin" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <p>Loading preview...</p>
+        `;
+        previewBody.appendChild(loading);
+        
+        // Show modal
+        previewModal.style.display = 'flex';
+        previewModal.removeAttribute('hidden');
+        
+        // Simulate loading and show appropriate preview
+        setTimeout(() => {
+            previewBody.innerHTML = '';
+            
+            let previewContent;
+            
+            // Determine preview based on file type
+            if (fileData.category === 'visual') {
+                // Create image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContent = document.createElement('div');
+                    previewContent.innerHTML = `
+                        <img src="${e.target.result}" alt="${fileData.name}" style="max-width: 100%; max-height: 60vh; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                        <div style="margin-top: 20px; text-align: left;">
+                            <h4 style="color: var(--text); margin-bottom: 10px;">File Details</h4>
+                            <p><strong>Name:</strong> ${fileData.name}</p>
+                            <p><strong>Size:</strong> ${formatFileSize(fileData.size)}</p>
+                            <p><strong>Type:</strong> ${categoryNames[fileData.category]}</p>
+                            <p><strong>Path:</strong> ${fileData.displayPath}</p>
+                            <p><strong>Added:</strong> ${new Date(fileData.timeAdded).toLocaleString()}</p>
+                        </div>
+                    `;
+                    previewBody.appendChild(previewContent);
+                };
+                reader.readAsDataURL(fileData.file);
+            } else if (fileData.category === 'document') {
+                // Document preview
+                previewContent = document.createElement('div');
+                previewContent.innerHTML = `
+                    <div style="background: var(--surface-alt); padding: 40px; border-radius: 8px; margin-bottom: 20px;">
+                        <i class="fas fa-file-alt" style="font-size: 4rem; color: var(--primary);"></i>
+                    </div>
+                    <div style="text-align: left;">
+                        <h4 style="color: var(--text); margin-bottom: 10px;">Document Preview</h4>
+                        <p>Document files cannot be previewed directly in the browser.</p>
+                        <div style="margin-top: 20px;">
+                            <h5 style="color: var(--text); margin-bottom: 10px;">File Details</h5>
+                            <p><strong>Name:</strong> ${fileData.name}</p>
+                            <p><strong>Size:</strong> ${formatFileSize(fileData.size)}</p>
+                            <p><strong>Type:</strong> ${categoryNames[fileData.category]}</p>
+                            <p><strong>Path:</strong> ${fileData.displayPath}</p>
+                            <p><strong>Added:</strong> ${new Date(fileData.timeAdded).toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+                previewBody.appendChild(previewContent);
+            } else {
+                // Generic preview for other types
+                previewContent = document.createElement('div');
+                previewContent.innerHTML = `
+                    <div style="background: var(--surface-alt); padding: 40px; border-radius: 8px; margin-bottom: 20px;">
+                        <i class="${categoryIcons[fileData.category]}" style="font-size: 4rem; color: var(--primary);"></i>
+                    </div>
+                    <div style="text-align: left;">
+                        <h4 style="color: var(--text); margin-bottom: 10px;">File Preview</h4>
+                        <p>This file type cannot be previewed directly in the browser.</p>
+                        <div style="margin-top: 20px;">
+                            <h5 style="color: var(--text); margin-bottom: 10px;">File Details</h5>
+                            <p><strong>Name:</strong> ${fileData.name}</p>
+                            <p><strong>Size:</strong> ${formatFileSize(fileData.size)}</p>
+                            <p><strong>Type:</strong> ${categoryNames[fileData.category]}</p>
+                            <p><strong>Path:</strong> ${fileData.displayPath}</p>
+                            <p><strong>Added:</strong> ${new Date(fileData.timeAdded).toLocaleString()}</p>
+                            ${fileData.tags.length > 0 ? `<p><strong>Tags:</strong> ${fileData.tags.join(', ')}</p>` : ''}
+                            ${fileData.description ? `<p><strong>Description:</strong> ${fileData.description}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+                previewBody.appendChild(previewContent);
+            }
+        }, 500); // Simulate loading delay
+    }
+    
+    // Edit file metadata
+    function editFileMetadata(fileData) {
+        // Populate form
+        document.getElementById('edit-file-id').value = fileData.id;
+        document.getElementById('edit-file-name').value = fileData.name;
+        document.getElementById('edit-file-category').value = fileData.category;
+        document.getElementById('edit-file-tags').value = fileData.tags.join(', ');
+        document.getElementById('edit-file-description').value = fileData.description || '';
+        
+        // Show modal
+        metadataModal.style.display = 'flex';
+        metadataModal.removeAttribute('hidden');
+    }
+    
+    // Save file metadata
+    function saveFileMetadata(e) {
+        e.preventDefault();
+        
+        const fileId = parseInt(document.getElementById('edit-file-id').value);
+        const fileData = fileQueue.find(f => f.id === fileId);
+        
+        if (fileData) {
+            // Update file data
+            fileData.name = document.getElementById('edit-file-name').value;
+            fileData.category = document.getElementById('edit-file-category').value;
+            fileData.tags = document.getElementById('edit-file-tags').value
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0);
+            fileData.description = document.getElementById('edit-file-description').value;
+            
+            // Save to storage
+            saveQueueToStorage();
+            
+            // Update display
+            updateQueueDisplay();
+            
+            // Close modal
+            metadataModal.style.display = 'none';
+            metadataModal.setAttribute('hidden', 'true');
+            
+            showUploadToast('Metadata Updated', 'File metadata has been saved.');
+        }
+    }
+    
+    // Save queue to localStorage (tanpa File object)
+    function saveQueueToStorage() {
+        // Convert File objects to serializable data
+        const serializableQueue = fileQueue.map(file => {
+            // Hapus File object karena tidak bisa diserialize
+            const { file: fileObj, ...rest } = file;
+            return rest;
+        });
+        
+        localStorage.setItem('amemuvlucht-file-queue', JSON.stringify(serializableQueue));
+    }
+    
+    // Format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Format time
+    function formatTime(seconds) {
+        if (seconds < 60) {
+            return `${Math.round(seconds)}s`;
+        } else if (seconds < 3600) {
+            return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
+        } else {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+    }
+    
+    // Sleep utility
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    // Show upload toast (reuse existing theme toast)
+    function showUploadToast(title, message) {
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+        themeToast.classList.add('show');
+        
+        setTimeout(() => {
+            themeToast.classList.remove('show');
+        }, 3000);
+    }
+
+    // ================ UPLOAD SYSTEM FUNCTIONS ================
+    // DOM Elements for upload system
+    const dropZone = document.getElementById('dropZone');
+    const uploadContainer = document.getElementById('upload-container');
+    const folderContainer = document.getElementById('folder-container');
+    const contentContainer = document.getElementById('content-container');
+    const fileInput = document.getElementById('file-input');
+    const folderInput = document.getElementById('folder-input');
+    const contentInput = document.getElementById('content-input');
+
+    // State variables for upload
+    let isUploadingFiles = false;
+
+    // Initialize upload system
+    function initUploadSystem() {
+        // ================ DROP ZONE EVENTS (DRAG & DROP ONLY) ================
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            
+            if (e.dataTransfer.files.length) {
+                handleFiles(e.dataTransfer.files, false, 'dropzone');
+            }
+        });
+
+        // ================ FILE PICKER EVENTS (3 OPTIONS) ================
+        // File upload container
+        uploadContainer.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files, false, 'file-picker');
+        });
+
+        // Folder upload container
+        folderContainer.addEventListener('click', () => {
+            folderInput.click();
+        });
+
+        folderInput.addEventListener('change', () => {
+            handleFiles(folderInput.files, false, 'folder-picker');
+        });
+
+        // Folder content upload container
+        contentContainer.addEventListener('click', () => {
+            contentInput.click();
+        });
+
+        contentInput.addEventListener('change', () => {
+            handleFiles(contentInput.files, true, 'content-picker');
+        });
+    }
+
+    // Handle files from all sources
+    async function handleFiles(files, stripRoot = false, source = 'unknown') {
+        if (isUploadingFiles) {
+            showUploadToast('Upload Sedang Berjalan', 'Tunggu upload selesai sebelum menambah file baru.');
+            return;
+        }
+
+        isUploadingFiles = true;
+        
+        // Add loading indicator to queue
+        showUploadToast('Processing Files', `Adding ${files.length} files to queue...`);
+
+        // Add files to queue
+        addFilesToQueue(files, stripRoot, source);
+        
+        // Clear file inputs
+        fileInput.value = '';
+        folderInput.value = '';
+        contentInput.value = '';
+        
+        isUploadingFiles = false;
+    }
+
+    // ================ ADDITIONAL FUNCTIONS ================
+    
+    // Tambahkan fungsi untuk mendapatkan daftar file yang sudah diupload
+    async function loadUploadedFiles() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/files`);
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('📦 Uploaded files:', data.files.length);
+                return data.files;
+            }
+        } catch (error) {
+            console.error('Failed to load uploaded files:', error);
+        }
+        return [];
+    }
+
+    // ================ INITIALIZATION ================
+    // Initialize theme system
+    initTheme();
+    initEventListeners();
+
+    // Initialize upload system
+    initUploadSystem();
+
+    // Initialize file queue system
+    initFileQueue();
+
+    // Load uploaded files on startup
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUploadedFiles();
+        
+        // Update console info
+        console.log('🎨 Theme Selector: Swipe dari kanan atau klik ikon palet untuk ganti tema.');
+        console.log('📤 Upload System Ready!');
+        console.log(`🌐 API Base URL: ${API_BASE_URL}`);
+        console.log('📁 Files will be saved to: storage/ folder');
+        console.log('🚀 Production Upload System Active!');
+    });
+</script>
+</body>
+</html>
