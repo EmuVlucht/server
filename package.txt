@@ -1,0 +1,77 @@
+# Core utilities
+curl
+wget
+git
+vim
+nano
+htop
+screen
+tmux
+unzip
+zip
+gzip
+bzip2
+tar
+rsync
+
+# Networking / diagnostics
+net-tools
+iputils-ping
+traceroute
+dnsutils
+nmap
+tcpdump
+jq
+
+# Build tools
+build-essential
+cmake
+make
+autoconf
+automake
+pkg-config
+libtool
+gcc
+g++
+gdb
+
+# Python
+python3
+python3-pip
+python3-venv
+python3-dev
+
+# Node.js
+nodejs
+npm
+
+# Java
+default-jdk
+default-jre
+
+# Database / cache clients
+sqlite3
+postgresql-client
+# mysql-client
+redis-tools
+
+# Version control & SSH
+openssh-client
+gnupg
+keychain
+
+# Compression / archive tools
+p7zip-full
+# p7zip-rar
+# rar
+# unrar
+
+# Misc
+software-properties-common
+ca-certificates
+
+# Multimedia / media processing
+ffmpeg
+
+# Cloud storage / sync tools
+rclone
