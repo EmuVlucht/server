@@ -1,0 +1,41 @@
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Docker
+.docker
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Build artifacts
+dist/
+build/
+
+# Local Railway
+.railway/

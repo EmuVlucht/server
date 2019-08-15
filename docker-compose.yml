@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  gitea:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gitea
+    restart: unless-stopped
+    
+    # Ports mapping
+    ports:
+      - "3000:3000"   # HTTP
+      - "2222:2222"   # SSH
+    
+    # Persistent volumes
+    volumes:
+      # Data volume - untuk database, config, attachments
+      - gitea_data:/var/lib/gitea/data
+      # Repository volume - untuk semua repositories
+      - gitea_repos:/var/lib/gitea/repositories
+      # Logs volume - untuk logs
+      - gitea_logs:/var/lib/gitea/log
+    
+    # Environment variables - READ FROM .env FILE
+    env_file:
+      - .env.local
+    
+    # Health check built-in Gitea + Docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Resource limits (opsional, untuk mencegah OOM)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1.0'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 256M
+
+# Named volumes untuk persistence
+volumes:
+  gitea_data:
+    driver: local
+  gitea_repos:
+    driver: local
+  gitea_logs:
+    driver: local
